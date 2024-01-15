@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Parcel Service App - Confirmation</title>
+</head>
+<body>
+    <h1>Parcel Sent Successfully!</h1>
+    <p>Recipient's Name: <span th:text="${recipientName}"></span></p>
+    <p>Recipient's Address: <span th:text="${recipientAddress}"></span></p>
+    <p>Sender's Name: <span th:text="${senderName}"></span></p>
+    <p>Sender's Address: <span th:text="${senderAddress}"></span></p>
+    <p>Parcel Content: <span th:text="${parcelContent}"></span></p>
+</body>
+</html>
+

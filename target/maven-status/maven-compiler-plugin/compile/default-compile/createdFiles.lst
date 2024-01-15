@@ -1,0 +1,4 @@
+com\example\controller\ParcelController.class
+com\example\SimpleParcelServiceApp.class
+com\example\service\ParcelService.class
+com\example\model\Parcel.class
