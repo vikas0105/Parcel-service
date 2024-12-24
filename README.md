@@ -40,7 +40,6 @@ bash
 Copy code
 mvn clean install
 This command will:
-
 Download dependencies
 Compile the source code
 Run tests
@@ -52,7 +51,8 @@ You can run the application in two ways:
 bash
 Copy code
 mvn spring-boot:run
-2. Using the Packaged JAR:
+
+3. Using the Packaged JAR:
 After building the project, run the packaged JAR file:
 
 bash
