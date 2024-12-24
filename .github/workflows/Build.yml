@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bus-booking-app
-          path: target/bus-booking-app-1.0-SNAPSHOT.jar
+          path: target/simple-parcel-service-app-1.0-SNAPSHOT.jar
 
       # Run the Spring Boot application
       - name: Run Spring Boot App
@@ -84,4 +84,3 @@ jobs:
         run: |
           echo "Stopping the app gracefully..."
           mvn spring-boot:stop
-          
