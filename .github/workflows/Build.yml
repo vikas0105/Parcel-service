@@ -1,0 +1,66 @@
+name: Build, Deploy, and Upload Artifacts
+
+on:
+  push:
+    branches:
+      - '**'  # Trigger on push to any branch
+  pull_request:
+    branches:
+      - master  # Trigger on PR to the 'master' branch
+  workflow_dispatch:  # Manually trigger the workflow
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+
+    - name: Set up Maven
+      uses: actions/setup-maven@v2
+      with:
+        maven-version: '3.8.1'
+
+    - name: Build with Maven
+      run: |
+        mvn clean package
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: simple-parcel-service-app
+        path: target/simple-parcel-service-app-1.0-SNAPSHOT.jar
+
+    - name: Run Application
+      run: |
+        nohup mvn spring-boot:run &  # Run the Spring Boot application in the background
+        sleep 15  # Allow some time for the Spring Boot app to fully start
+
+    - name: Validate App is Running
+      run: |
+        echo "Waiting for the app to start..."
+        sleep 15  # Wait for the Spring Boot app to fully start
+        echo "Checking if the app is running..."
+        RESPONSE=$(curl --write-out "%{http_code}" --silent --output /dev/null http://localhost:8080)
+        if [ "$RESPONSE" -eq 200 ]; then
+          echo "The app is running successfully!"
+        else
+          echo "The app failed to start. HTTP response code: $RESPONSE"
+          exit 1
+        fi
+
+    - name: Wait for 5 minutes
+      run: |
+        echo "App has been running for 5 minutes. Waiting..."
+        sleep 300  # Wait for 5 minutes (300 seconds)
+
+    - name: Gracefully Stop Spring Boot App
+      run: |
+        echo "Stopping the app gracefully..."
+        mvn spring-boot:stop
