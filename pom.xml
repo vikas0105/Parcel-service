@@ -7,27 +7,42 @@
     <groupId>com.example</groupId>
     <artifactId>simple-parcel-service-app</artifactId>
     <version>1.0-SNAPSHOT</version>
-    
+
+    <packaging>war</packaging> <!-- Change packaging to war -->
+
     <properties>
         <java.version>11</java.version>
         <spring.boot.version>2.5.4</spring.boot.version>
     </properties>
 
     <dependencies>
+        <!-- Spring Boot starter for Thymeleaf -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
             <version>${spring.boot.version}</version>
         </dependency>
+        
+        <!-- Spring Boot starter for Web (includes Tomcat) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring.boot.version}</version>
         </dependency>
+
+        <!-- Spring Boot starter for Tomcat (provided because it's already included in Tomcat) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Optional: Spring Boot starter for JSP or other dependencies based on your needs -->
     </dependencies>
 
     <build>
         <plugins>
+            <!-- Spring Boot Maven Plugin for WAR Packaging -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -36,6 +51,8 @@
                     <mainClass>com.example.SimpleParcelServiceApp</mainClass>
                 </configuration>
             </plugin>
+
+            <!-- Maven Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -48,4 +65,3 @@
         </plugins>
     </build>
 </project>
-
