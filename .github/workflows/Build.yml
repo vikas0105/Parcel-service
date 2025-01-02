@@ -38,25 +38,20 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      # Run the Spring Boot application
+      # Run the Spring Boot application in the background
       - name: Run Spring Boot App
         run: mvn spring-boot:run &
-        env:
-          SPRING_PROFILES_ACTIVE: "test"
 
-      # Display the IP address and port number for accessing the app
-      - name: Display IP Address and Port
+      # Wait for the Spring Boot app to fully start
+      - name: Wait for Spring Boot App to Start
         run: |
-          echo "Fetching the runner's IP address..."
-          IP_ADDRESS=$(curl -s ifconfig.me) # This fetches the public IP of the runner
-          PORT=8080
-          echo "The app is accessible at: http://$IP_ADDRESS:$PORT"
+          echo "Waiting for the app to start..."
+          sleep 5 # Allow time for the Spring Boot app to fully initialize
+          echo "App should now be running."
 
       # Validate that the application is running by sending a request to the app
       - name: Validate App is Running
         run: |
-          echo "Waiting for the app to start..."
-          sleep 15 # Allow some time for the Spring Boot app to fully start
           echo "Checking if the app is running..."
           RESPONSE=$(curl --write-out "%{http_code}" --silent --output /dev/null http://localhost:8080)
           if [ "$RESPONSE" -eq 200 ]; then
@@ -66,11 +61,11 @@ jobs:
             exit 1
           fi
 
-      # Wait for 5 minutes
+      # Wait for 5 minutes (300 seconds)
       - name: Wait for 5 minutes
         run: |
           echo "App has been running for 5 minutes. Waiting..."
-          sleep 3  # Wait for 5 minutes (300 seconds)
+          sleep 3 # Wait for 5 minutes
 
       # Stop the Spring Boot app gracefully using spring-boot:stop
       - name: Gracefully Stop Spring Boot App
@@ -82,6 +77,10 @@ jobs:
       - name: SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_ORG: your-organization
+          SONAR_ORG: your-organization # Replace with your actual SonarCloud organization
           SONAR_HOST_URL: https://sonarcloud.io
-        run: mvn clean verify sonar:sonar -Dsonar.organization=${{ secrets.SONAR_ORG }} -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn clean verify sonar:sonar \
+            -Dsonar.organization=${{ secrets.SONAR_ORG }} \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
