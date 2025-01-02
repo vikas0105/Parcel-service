@@ -1,4 +1,4 @@
-name: Build, Deploy, and SonarCloud Analysis
+name: Build, Deploy, SonarQube Analysis, and Upload Artifacts
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Set up Java (for example, Java 11 in this case)
+      # Set up Java
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -38,6 +38,16 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
+      # Run SonarQube analysis
+      - name: SonarQube Scan
+        uses: sonarsource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Your SonarCloud token
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}  # Your SonarCloud project key
+          SONAR_ORG_KEY: ${{ secrets.SONAR_ORG_KEY }}  # Your SonarCloud organization key
+
       # Upload the JAR as an artifact using v4
       - name: Upload JAR as artifact
         uses: actions/upload-artifact@v4
@@ -45,7 +55,7 @@ jobs:
           name: bus-booking-app
           path: target/simple-parcel-service-app-1.0-SNAPSHOT.jar
 
-      # Run the Spring Boot application (use spring-boot:run)
+      # Run the Spring Boot application
       - name: Run Spring Boot App
         run: mvn spring-boot:run & 
         env:
@@ -73,23 +83,14 @@ jobs:
             exit 1
           fi
 
-      # Wait for 5 minutes (this is an arbitrary wait time, you may adjust as needed)
-      - name: Wait for 3 sec
+      # Wait for 3 seconds (adjusted from 5 minutes)
+      - name: Wait for 3 seconds
         run: |
-          echo "App has been running for 3 sec. Waiting..."
-          sleep 3  # Wait for 5 minutes (3 seconds)
+          echo "App has been running for 3 seconds. Waiting..."
+          sleep 3  # Wait for 3 seconds
 
       # Stop the Spring Boot app gracefully using spring-boot:stop
       - name: Gracefully Stop Spring Boot App
         run: |
           echo "Stopping the app gracefully..."
           mvn spring-boot:stop
-
-      # SonarCloud Integration
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@v2
-        with:
-          projectKey: ${{ env.SONAR_PROJECT_KEY }}  # Use the environment variable for the Sonar project key
-          organization: ${{ env.SONAR_ORG }}  # Use the environment variable for the Sonar organization
-        env:
-          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}  # Reference SONAR_TOKEN from the environment variables
