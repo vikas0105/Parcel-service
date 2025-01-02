@@ -29,12 +29,11 @@ jobs:
         java-version: '11'
         distribution: 'temurin'  # Use Temurin JDK distribution
 
-    # Step 3: Set up Maven with Java 11
+    # Step 3: Set up Maven
     - name: Set up Maven
-      uses: actions/setup-java@v3
+      uses: actions/setup-maven@v2
       with:
-        java-version: '11'  # Set Java version for Maven
-        distribution: 'maven'  # Set up Maven
+        maven-version: '3.8.4'  # Specify the Maven version if needed
 
     # Step 4: Initialize CodeQL for Java
     - name: Initialize CodeQL
