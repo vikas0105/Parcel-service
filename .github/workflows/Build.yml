@@ -46,6 +46,8 @@ jobs:
           args: |
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORG_KEY }}
+            -Dsonar.java.binaries=target/classes  # Path to your compiled classes
+            -X  # Enable debug logging
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # SonarCloud token from GitHub Secrets
           SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}  # SonarCloud project key from GitHub Secrets
@@ -96,4 +98,3 @@ jobs:
       - name: Gracefully Stop Spring Boot App
         run: |
           echo "Stopping the app gracefully..."
-          mvn spring-boot:stop
