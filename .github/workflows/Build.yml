@@ -38,13 +38,6 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      # Upload the JAR as an artifact using v4
-      - name: Upload JAR as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bus-booking-app
-          path: target/simple-parcel-service-app-1.0-SNAPSHOT.jar
-
       # Run the Spring Boot application
       - name: Run Spring Boot App
         run: mvn spring-boot:run &
@@ -89,4 +82,6 @@ jobs:
       - name: SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn clean verify sonar:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+          SONAR_ORG: your-organization
+          SONAR_HOST_URL: https://sonarcloud.io
+        run: mvn clean verify sonar:sonar -Dsonar.organization=${{ secrets.SONAR_ORG }} -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} -Dsonar.login=${{ secrets.SONAR_TOKEN }}
