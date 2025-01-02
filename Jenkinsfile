@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'  // Adjust if needed
     }
 
     stages {
@@ -15,9 +15,7 @@ pipeline {
         stage('Set Up Java') {
             steps {
                 script {
-                    // Install Java 17 if not already installed
-                    sh 'sudo apt update'
-                    sh 'sudo apt install openjdk-17-jdk -y'
+                    // Verify Java 17 is available
                     sh 'java -version'
                 }
             }
