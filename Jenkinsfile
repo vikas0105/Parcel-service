@@ -2,9 +2,6 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token')
-        SONAR_ORG = 'vikas0105'
-        SONAR_HOST_URL = 'https://sonarcloud.io'
         JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
     }
 
@@ -37,13 +34,14 @@ pipeline {
 
         stage('Build with Maven') {
             steps {
-                // Use Maven without specifying the version from Jenkins' Global Tool Configuration
+                // Use Maven to build the project
                 sh 'mvn clean install -DskipTests'
             }
         }
 
         stage('Run Spring Boot App') {
             steps {
+                // Run the Spring Boot app in the background
                 sh 'mvn spring-boot:run &'
             }
         }
@@ -82,22 +80,6 @@ pipeline {
         stage('Gracefully Stop Spring Boot App') {
             steps {
                 sh 'mvn spring-boot:stop'
-            }
-        }
-
-        stage('SonarCloud Analysis') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh """
-                            mvn sonar:sonar \
-                            -Dsonar.organization=${env.SONAR_ORG} \
-                            -Dsonar.host.url=${env.SONAR_HOST_URL} \
-                            -Dsonar.projectKey=vikas0105_Parcel-service \
-                            -Dsonar.login=${env.SONAR_TOKEN}
-                        """
-                    }
-                }
             }
         }
     }
