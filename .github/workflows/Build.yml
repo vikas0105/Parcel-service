@@ -96,19 +96,15 @@ jobs:
     needs: build
     permissions:
       contents: read
-      security-events: write  # Required for SonarCloud integration
+      security-events: write  # Required for writing to Code Scanning API
 
     steps:
       # Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Set up SonarCloud
+      # Set up SonarCloud (Maven plugin)
       - name: Set up SonarCloud
-        uses: sonarsource/sonarcloud-action@v2
-        with:
-          organization: ${{ secrets.SONAR_ORG }}  # Secret: Your SonarCloud organization key
-          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}  # Secret: Your SonarCloud project key
-          token: ${{ secrets.SONAR_TOKEN }}  # Secret: Your SonarCloud token
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Access the secret token here
+        run: mvn sonar:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} -Dsonar.organization=${{ secrets.SONAR_ORG }} -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+      # Optionally, you can add other steps to validate or deploy after SonarCloud analysis
