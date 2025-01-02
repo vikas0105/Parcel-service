@@ -29,8 +29,7 @@ jobs:
     - name: Set up Maven
       uses: actions/setup-java@v3
       with:
-        distribution: 'maven'  # Specify Maven distribution
-        java-version: '11'     # Ensure Java 11 is used for Maven
+        distribution: 'maven'  # Use Maven distribution
 
     # Step 4: Perform Static Code Analysis with CodeQL
     - name: Initialize CodeQL
