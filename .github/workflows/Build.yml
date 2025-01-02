@@ -1,4 +1,4 @@
-name: Build, Deploy, and Upload Artifacts with SonarCloud
+name: Build, Deploy, and Analyze with SonarCloud
 
 on:
   push:
@@ -53,7 +53,7 @@ jobs:
 
       # Run the Spring Boot application
       - name: Run Spring Boot App
-        run: mvn spring-boot:run &
+        run: mvn spring-boot:run & 
         env:
           SPRING_PROFILES_ACTIVE: "test"
 
@@ -103,8 +103,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Set up SonarCloud (Maven plugin)
+      # Set up SonarCloud environment
       - name: Set up SonarCloud
-        run: mvn sonar:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} -Dsonar.organization=${{ secrets.SONAR_ORG }} -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        uses: sonarsource/sonarcloud-action@v2
+        with:
+          organization: ${{ secrets.SONAR_ORG }}
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # Optionally, you can add other steps to validate or deploy after SonarCloud analysis
+      # Run SonarCloud analysis
+      - name: Run SonarCloud Analysis
+        run: mvn sonar:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} -Dsonar.organization=${{ secrets.SONAR_ORG }} -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
