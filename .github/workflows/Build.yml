@@ -13,6 +13,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      security-events: write  # Required for CodeQL to upload results
+
     steps:
       # Checkout the repository
       - name: Checkout Code
@@ -37,6 +41,16 @@ jobs:
       # Build the project with Maven
       - name: Build with Maven
         run: mvn clean install
+
+      # Set up CodeQL for Java (after the build)
+      - name: Set up CodeQL
+        uses: github/codeql-action/setup
+
+      # Perform CodeQL Analysis (after build)
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          upload: true  # Upload CodeQL results to GitHub security events
 
       # Upload the JAR as an artifact using v4
       - name: Upload JAR as artifact
