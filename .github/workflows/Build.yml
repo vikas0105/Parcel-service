@@ -105,10 +105,10 @@ jobs:
 
       # Set up SonarCloud
       - name: Set up SonarCloud
-        uses: SonarSource/sonarcloud-action@v2.1.1  # This is the updated action version
+        uses: sonarsource/sonarcloud-action@v2
         with:
           organization: ${{ secrets.SONAR_ORG }}  # Secret: Your SonarCloud organization key
           projectKey: ${{ secrets.SONAR_PROJECT_KEY }}  # Secret: Your SonarCloud project key
-          token: ${{ vars.SONAR_TOKEN }}  # Variable: Your SonarCloud token from GitHub Variables
+          token: ${{ secrets.SONAR_TOKEN }}  # Secret: Your SonarCloud token
         env:
-          SONAR_TOKEN: ${{ vars.SONAR_TOKEN }}  # Access the variable here
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Access the secret token here
