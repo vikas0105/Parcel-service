@@ -15,7 +15,7 @@ jobs:
 
     permissions:
       contents: read
-      security-events: write  # Required for CodeQL to upload results
+      security-events: write
 
     steps:
       # Checkout the repository
@@ -41,6 +41,11 @@ jobs:
       # Build the project with Maven
       - name: Build with Maven
         run: mvn clean install
+
+      # List files to verify source code is present
+      - name: List files in repository
+        run: |
+          ls -R
 
       # Set up CodeQL for Java
       - name: Set up CodeQL
