@@ -3,7 +3,7 @@ name: Build, Deploy, and Upload Artifacts with SonarCloud
 on:
   push:
     branches:
-      - main
+      - '**'
   pull_request:
     branches:
       - main
