@@ -13,53 +13,58 @@ jobs:
   build-and-run:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      security-events: write  # Required for CodeQL to upload the results
+
     steps:
     # Step 1: Checkout code
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # Step 2: Set up Java 11 with Temurin distribution
+    # Step 2: Set up Java 11
     - name: Set up Java 11
       uses: actions/setup-java@v3
       with:
-        java-version: '11'  # Specify the Java version
-        distribution: 'temurin'  # Use Temurin as the JDK distribution
+        java-version: '11'
+        distribution: 'temurin'  # Use Temurin JDK distribution
 
     # Step 3: Set up Maven
     - name: Set up Maven
       uses: actions/setup-java@v3
       with:
-        distribution: 'maven'  # Use Maven distribution
+        distribution: 'maven'  # Set up Maven
 
-    # Step 4: Perform Static Code Analysis with CodeQL
+    # Step 4: Initialize CodeQL for Java
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
-        languages: 'java'  # Specify language for analysis
+        languages: 'java'  # Specify Java language for analysis
 
+    # Step 5: Perform CodeQL Analysis
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
         upload: true  # Upload results to GitHub security events
 
-    # Step 5: Build the project
+    # Step 6: Build the project with Maven
     - name: Build with Maven
       run: mvn clean package
 
-    # Step 6: Upload the built JAR as an artifact
+    # Step 7: Upload the built JAR as an artifact
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: built-jar
         path: target/simple-parcel-service-app-1.0-SNAPSHOT.jar
 
-    # Step 7: Run the Spring Boot application
+    # Step 8: Run the Spring Boot application
     - name: Run Application
       run: |
         nohup mvn spring-boot:run &  # Run in the background
         sleep 15 # Allow time for the app to fully start
 
-    # Step 8: Validate App is Running
+    # Step 9: Validate App is Running
     - name: Validate App is Running
       run: |
         echo "Waiting for the app to start..."
@@ -73,13 +78,13 @@ jobs:
           exit 1
         fi
 
-    # Step 9: Wait for 5 minutes
+    # Step 10: Wait for 5 minutes
     - name: Wait for 5 minutes
       run: |
         echo "App has been running for 5 minutes. Waiting..."
         sleep 300  # Wait for 5 minutes (300 seconds)
 
-    # Step 10: Gracefully Stop Spring Boot App
+    # Step 11: Gracefully Stop Spring Boot App
     - name: Gracefully Stop Spring Boot App
       run: |
         echo "Stopping the app gracefully..."
