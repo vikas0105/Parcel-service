@@ -1,23 +1,17 @@
-name: Build, Deploy, and Upload Artifacts with SonarCloud
+name: Build, Deploy, SonarCloud Integration, and Upload Artifacts
 
 on:
   push:
     branches:
-      - '*'  # Triggers on all branches
+      - '**'
   pull_request:
     branches:
-      - '*'  # Triggers on all branches
+      - master
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      security-events: write  # Required to access Code Scanning API
-      actions: read
-      pull-requests: write  # For accessing PR data
 
     steps:
       # Checkout the repository
@@ -44,7 +38,16 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      # Upload the JAR as an artifact
+      # SonarCloud Scan Step
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-action@v2
+        with:
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}  # Fetch SonarCloud project key from GitHub secrets or replace with your variable
+          organization: ${{ secrets.SONAR_ORG }}  # Fetch SonarCloud organization from GitHub secrets or replace with your variable
+        env:
+          SONAR_TOKEN: ${{ vars.SONAR_TOKEN }}  # Use the environment variable for SonarCloud token
+
+      # Upload the JAR as artifact
       - name: Upload JAR as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -79,35 +82,14 @@ jobs:
             exit 1
           fi
 
-      # Wait for 5 seconds
-      - name: Wait for 5 seconds
+      # Wait for 5 minutes
+      - name: Wait for 5 minutes
         run: |
-          echo "Waiting for 5 seconds..."
-          sleep 5
+          echo "App has been running for 5 minutes. Waiting..."
+          sleep 300  # Wait for 5 minutes (300 seconds)
 
-      # Stop the Spring Boot app gracefully using spring-boot:stop
+      # Gracefully Stop Spring Boot App
       - name: Gracefully Stop Spring Boot App
         run: |
           echo "Stopping the app gracefully..."
           mvn spring-boot:stop
-
-  sonarcloud:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      contents: read
-      security-events: write  # Required for writing to Code Scanning API
-
-    steps:
-      # Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Set up SonarCloud and run analysis in one step
-      - name: Set up SonarCloud and Run Analysis
-        uses: sonarsource/sonarcloud-github-action@v2
-        with:
-          organization: ${{ secrets.SONAR_ORG }}
-          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
