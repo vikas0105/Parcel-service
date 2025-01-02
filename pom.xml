@@ -36,25 +36,21 @@
                     <mainClass>com.example.SimpleParcelServiceApp</mainClass>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>11</source> <!-- Updated to Java 11 -->
-                    <target>11</target> <!-- Updated to Java 11 -->
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
 
-            <!-- Sonar Maven Plugin Configuration -->
+            <!-- Sonar Maven Plugin for SonarCloud Analysis -->
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>4.0.0.4121</version> <!-- Add the latest version of Sonar plugin -->
-                <configuration>
-                    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-                </configuration>
+                <version>3.9.1.2184</version>
             </plugin>
         </plugins>
     </build>
