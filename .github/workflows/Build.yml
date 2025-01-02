@@ -34,26 +34,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Build the project with Maven
-      - name: Build with Maven
-        run: mvn clean install
-
-      # SonarCloud Analysis
-      - name: SonarCloud Analysis
-        uses: sonarsource/sonarcloud-github-action@v2
-        with:
-          projectBaseDir: .
-          args: |
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.organization=${{ secrets.SONAR_ORG_KEY }}
-            -Dsonar.java.binaries=target/classes  # Path to your compiled classes
-            -X  # Enable debug logging
+      # Build with Maven and run SonarCloud analysis using the sonar-maven-plugin
+      - name: Build with Maven and SonarCloud Analysis
+        run: mvn clean install sonar:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} -Dsonar.organization=${{ secrets.SONAR_ORG_KEY }} -Dsonar.java.binaries=target/classes
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # SonarCloud token from GitHub Secrets
-          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}  # SonarCloud project key from GitHub Secrets
-          SONAR_ORG_KEY: ${{ secrets.SONAR_ORG_KEY }}  # SonarCloud organization key from GitHub Secrets
 
-      # Upload the JAR as an artifact using v4
+      # Upload the JAR as an artifact
       - name: Upload JAR as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -98,3 +85,4 @@ jobs:
       - name: Gracefully Stop Spring Boot App
         run: |
           echo "Stopping the app gracefully..."
+          mvn spring-boot:stop
