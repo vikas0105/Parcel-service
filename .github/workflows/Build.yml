@@ -3,10 +3,10 @@ name: Build, Deploy, and Upload Artifacts with SonarCloud
 on:
   push:
     branches:
-      - '**'
+      - '*'  # Triggers on all branches
   pull_request:
     branches:
-      - main
+      - '*'  # Triggers on all branches
   workflow_dispatch:
 
 jobs:
@@ -79,11 +79,11 @@ jobs:
             exit 1
           fi
 
-      # Wait for 5 minutes
-      - name: Wait for 5 minutes
+      # Wait for 5 seconds
+      - name: Wait for 5 seconds
         run: |
-          echo "App has been running for 5 minutes. Waiting..."
-          sleep 30  # Wait for 30 secs
+          echo "Waiting for 5 seconds..."
+          sleep 5
 
       # Stop the Spring Boot app gracefully using spring-boot:stop
       - name: Gracefully Stop Spring Boot App
@@ -105,8 +105,9 @@ jobs:
 
       # Set up SonarCloud and run analysis in one step
       - name: Set up SonarCloud and Run Analysis
-        run: |
-          curl -sSLo sonarcloud-action.sh https://github.com/SonarSource/sonarcloud-action/releases/download/v2/sonarcloud-action-linux-x86_64.tar.gz
-          tar -xzf sonarcloud-action.sh
-          chmod +x sonarcloud-action.sh
-          ./sonarcloud-action.sh --organization="${{ secrets.SONAR_ORG }}" --projectKey="${{ secrets.SONAR_PROJECT_KEY }}" --sonarToken="${{ secrets.SONAR_TOKEN }}" --sonarHostUrl="https://sonarcloud.io"
+        uses: sonarsource/sonarcloud-github-action@v2
+        with:
+          organization: ${{ secrets.SONAR_ORG }}
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
