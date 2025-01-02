@@ -47,24 +47,35 @@ jobs:
         run: |
           ls -R
 
-      # Set up CodeQL for Java
+  codeql:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Set up CodeQL for Java (update to v3)
       - name: Set up CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: 'java'
-          build-command: mvn clean install  # Ensures CodeQL sees the built code
 
       # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
         with:
           upload: true  # Upload CodeQL results to GitHub security events
 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       # Upload the JAR as an artifact using v4
       - name: Upload JAR as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bus-booking-app
+          name: parcel-service-app
           path: target/simple-parcel-service-app-1.0-SNAPSHOT.jar
 
       # Run the Spring Boot application
