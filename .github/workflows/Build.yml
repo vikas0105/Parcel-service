@@ -44,13 +44,11 @@ jobs:
 
       # Set up CodeQL for Java (after the build)
       - name: Set up CodeQL
-        uses: github/codeql-action/setup@v3
-        with:
-          languages: 'java'  # Specify the language for analysis
+        uses: github/codeql-action/setup@v2  # Updated to use the correct version
 
       # Perform CodeQL Analysis (after build)
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v2
         with:
           upload: true  # Upload CodeQL results to GitHub security events
 
