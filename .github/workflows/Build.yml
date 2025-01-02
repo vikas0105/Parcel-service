@@ -87,7 +87,7 @@ jobs:
 
       # SonarCloud Integration
       - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-action@v2
+        uses: sonarsource/sonarcloud-github-action@v2
         with:
           projectKey: ${{ env.SONAR_PROJECT_KEY }}  # Use the environment variable for the Sonar project key
           organization: ${{ env.SONAR_ORG }}  # Use the environment variable for the Sonar organization
