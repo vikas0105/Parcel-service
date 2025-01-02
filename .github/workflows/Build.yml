@@ -83,7 +83,7 @@ jobs:
       - name: Wait for 5 minutes
         run: |
           echo "App has been running for 5 minutes. Waiting..."
-          sleep 300  # Wait for 5 minutes (300 seconds)
+          sleep 30  # Wait for 30 secs
 
       # Stop the Spring Boot app gracefully using spring-boot:stop
       - name: Gracefully Stop Spring Boot App
