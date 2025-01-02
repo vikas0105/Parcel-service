@@ -38,16 +38,18 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      # SonarCloud Analysis with Debugging
+      # SonarCloud Analysis
       - name: SonarCloud Analysis
         uses: sonarsource/sonarcloud-github-action@v2
         with:
           projectBaseDir: .
-          sonar.projectKey: ${{ secrets.SONAR_PROJECT_KEY }}  # Explicitly set the project key
-          sonar.organization: ${{ secrets.SONAR_ORG_KEY }}  # Explicitly set the organization key
-          args: "-X"  # Enable debug logging for SonarScanner
+          args: |
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORG_KEY }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # SonarCloud token from GitHub Secrets
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}  # SonarCloud project key from GitHub Secrets
+          SONAR_ORG_KEY: ${{ secrets.SONAR_ORG_KEY }}  # SonarCloud organization key from GitHub Secrets
 
       # Upload the JAR as an artifact using v4
       - name: Upload JAR as artifact
