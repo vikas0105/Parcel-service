@@ -42,11 +42,13 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      # Set up CodeQL for Java (after the build)
+      # Set up CodeQL
       - name: Set up CodeQL
-        uses: github/codeql-action/setup@v2
+        uses: github/codeql-action/init@v2
+        with:
+          languages: 'java'  # Specify the language for analysis
 
-      # Perform CodeQL Analysis (after build)
+      # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
         with:
