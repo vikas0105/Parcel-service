@@ -1,4 +1,4 @@
-name: Build, Deploy, and Upload Artifacts with CodeQL
+name: Build, Deploy, and Upload Artifacts with SonarCloud
 
 on:
   push:
@@ -91,26 +91,24 @@ jobs:
           echo "Stopping the app gracefully..."
           mvn spring-boot:stop
 
-  codeql:
+  sonarcloud:
     runs-on: ubuntu-latest
     needs: build
     permissions:
       contents: read
-      security-events: write  # Required for writing to Code Scanning API
+      security-events: write  # Required for SonarCloud integration
 
     steps:
       # Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Set up CodeQL for Java
-      - name: Set up CodeQL
-        uses: github/codeql-action/init@v3
+      # Set up SonarCloud
+      - name: Set up SonarCloud
+        uses: SonarSource/sonarcloud-action@v2
         with:
-          languages: 'java'
-
-      # Perform CodeQL Analysis
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          upload: true  # Upload CodeQL results to GitHub security events
+          organization: ${{ secrets.SONAR_ORG }}  # Secret: Your SonarCloud organization key
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}  # Secret: Your SonarCloud project key
+          token: ${{ vars.SONAR_TOKEN }}  # Variable: Your SonarCloud token from GitHub Variables
+        env:
+          SONAR_TOKEN: ${{ vars.SONAR_TOKEN }}  # Access the variable here
