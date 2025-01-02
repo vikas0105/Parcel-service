@@ -1,4 +1,4 @@
-name: Build, Deploy, and Run
+name: Build, Deploy, and Run with CodeQL
 
 on:
   push:
@@ -7,7 +7,11 @@ on:
   pull_request:
     branches:
       - master # Trigger on pull requests to the master branch
-  workflow_dispatch: # Allow manual triggers
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+  security-events: write
 
 jobs:
   build-and-run:
@@ -18,19 +22,19 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # Step 2: Initialize CodeQL
+    # Step 2: Initialize CodeQL (v3)
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: java
 
-    # Step 3: Build the project (required for CodeQL to understand the codebase)
+    # Step 3: Build the project (required for CodeQL to analyze the codebase)
     - name: Build with Maven
       run: mvn clean package
 
-    # Step 4: Run CodeQL Analysis
+    # Step 4: Run CodeQL Analysis (v3)
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
 
     # Step 5: Set up Java 11
     - name: Set up Java 11
