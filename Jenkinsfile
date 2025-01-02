@@ -17,7 +17,7 @@ pipeline {
 
         stage('Set up Java 17') {
             steps {
-                echo 'Setting up Java 11...'
+                echo 'Setting up Java 17...'
                 sh 'sudo apt update'
                 sh 'sudo apt install -y openjdk-17-jdk'
             }
@@ -49,6 +49,12 @@ pipeline {
                 echo 'Running Spring Boot application...'
                 sh 'nohup mvn spring-boot:run &'
                 sleep(time: 15, unit: 'SECONDS') // Wait for the application to fully start
+
+                // Display the IP address of the machine
+                script {
+                    def ipAddress = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true).trim()
+                    echo "The application is running on IP address: ${ipAddress}"
+                }
             }
         }
 
