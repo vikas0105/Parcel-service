@@ -3,8 +3,11 @@ name: Build, Deploy, and Run
 on:
   push:
     branches:
-      - main
+      - '**' # Trigger on all branches
   pull_request:
+    branches:
+      - master # Trigger on pull requests to the master branch
+  workflow_dispatch: # Allow manual triggers
 
 jobs:
   build-and-run:
