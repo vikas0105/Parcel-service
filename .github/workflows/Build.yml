@@ -1,95 +1,87 @@
-name: Build, Deploy, and Run with CodeQL
+name: Build, Deploy, and Run
 
 on:
   push:
     branches:
-      - '**' # Trigger on all branches
+      - '**'  # Trigger on all branches
   pull_request:
     branches:
-      - master # Trigger on pull requests to the master branch
-    types:
-      - opened
-      - synchronize
-      - reopened
-  workflow_dispatch: # Allow manual trigger
-
-permissions:
-  contents: write
-  security-events: write
+      - master  # Trigger on pull requests to the master branch
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  build-deploy-analyze:
+  build-and-run:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    # Step 1: Checkout code
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-      # Step 2: Set up Java 11
-      - name: Set up Java 11
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
+    # Step 2: Set up Java 11 with Temurin distribution
+    - name: Set up Java 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'  # Specify the Java version
+        distribution: 'temurin'  # Use Temurin as the JDK distribution
 
-      # Step 3: Set up Maven
-      - name: Set up Maven
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'maven'
+    # Step 3: Set up Maven
+    - name: Set up Maven
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'maven'  # Specify Maven distribution
+        java-version: '11'     # Ensure Java 11 is used for Maven
 
-      # Step 4: Build the project
-      - name: Build with Maven
-        run: mvn clean package
+    # Step 4: Perform Static Code Analysis with CodeQL
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'java'  # Specify language for analysis
 
-      # Step 5: Upload the built JAR as an artifact
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: built-jar
-          path: target/simple-parcel-service-app-1.0-SNAPSHOT.jar
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        upload: true  # Upload results to GitHub security events
 
-      # Step 6: Run the Spring Boot application
-      - name: Run Application
-        run: |
-          nohup mvn spring-boot:run &
-          sleep 15 # Allow time for the app to fully start
+    # Step 5: Build the project
+    - name: Build with Maven
+      run: mvn clean package
 
-      # Step 7: Validate the Application is Running
-      - name: Validate App is Running
-        run: |
-          echo "Checking if the app is running..."
-          RESPONSE=$(curl --write-out "%{http_code}" --silent --output /dev/null http://localhost:8080)
-          if [ "$RESPONSE" -eq 200 ]; then
-            echo "The app is running successfully!"
-          else
-            echo "The app failed to start. HTTP response code: $RESPONSE"
-            exit 1
-          fi
+    # Step 6: Upload the built JAR as an artifact
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: built-jar
+        path: target/simple-parcel-service-app-1.0-SNAPSHOT.jar
 
-      # Step 8: Perform CodeQL Analysis
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: 'java'
+    # Step 7: Run the Spring Boot application
+    - name: Run Application
+      run: |
+        nohup mvn spring-boot:run &  # Run in the background
+        sleep 15 # Allow time for the app to fully start
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: 'security'
+    # Step 8: Validate App is Running
+    - name: Validate App is Running
+      run: |
+        echo "Waiting for the app to start..."
+        sleep 15  # Allow some time for the Spring Boot app to fully start
+        echo "Checking if the app is running..."
+        RESPONSE=$(curl --write-out "%{http_code}" --silent --output /dev/null http://localhost:8080)
+        if [ "$RESPONSE" -eq 200 ]; then
+          echo "The app is running successfully!"
+        else
+          echo "The app failed to start. HTTP response code: $RESPONSE"
+          exit 1
+        fi
 
-      # Step 9: Upload SARIF Results
-      - name: Upload SARIF Results
-        uses: github/codeql-action/upload-sarif@v3
+    # Step 9: Wait for 5 minutes
+    - name: Wait for 5 minutes
+      run: |
+        echo "App has been running for 5 minutes. Waiting..."
+        sleep 300  # Wait for 5 minutes (300 seconds)
 
-      # Step 10: Wait for 5 minutes
-      - name: Wait for 5 minutes
-        run: |
-          echo "App has been running for 5 minutes. Waiting..."
-          sleep 300 # Wait for 5 minutes (300 seconds)
-
-      # Step 11: Gracefully Stop Spring Boot App
-      - name: Gracefully Stop Spring Boot App
-        run: |
-          echo "Stopping the app gracefully..."
-          mvn spring-boot:stop
+    # Step 10: Gracefully Stop Spring Boot App
+    - name: Gracefully Stop Spring Boot App
+      run: |
+        echo "Stopping the app gracefully..."
+        mvn spring-boot:stop
