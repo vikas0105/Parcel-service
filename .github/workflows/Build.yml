@@ -1,4 +1,4 @@
-name: Build, Deploy, and Upload Artifacts
+name: Build, Deploy, and Upload Artifacts with CodeQL
 
 on:
   push:
@@ -15,7 +15,9 @@ jobs:
 
     permissions:
       contents: read
-      security-events: write
+      security-events: write  # Required to access Code Scanning API
+      actions: read
+      pull-requests: write  # For accessing PR data
 
     steps:
       # Checkout the repository
@@ -42,45 +44,16 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      # List files to verify source code is present
-      - name: List files in repository
-        run: |
-          ls -R
-
-  codeql:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      # Checkout the repository
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      # Set up CodeQL for Java (update to v3)
-      - name: Set up CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: 'java'
-
-      # Perform CodeQL Analysis
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          upload: true  # Upload CodeQL results to GitHub security events
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      # Upload the JAR as an artifact using v4
+      # Upload the JAR as an artifact
       - name: Upload JAR as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: parcel-service-app
+          name: bus-booking-app
           path: target/simple-parcel-service-app-1.0-SNAPSHOT.jar
 
       # Run the Spring Boot application
       - name: Run Spring Boot App
-        run: mvn spring-boot:run & 
+        run: mvn spring-boot:run &
         env:
           SPRING_PROFILES_ACTIVE: "test"
 
@@ -117,3 +90,27 @@ jobs:
         run: |
           echo "Stopping the app gracefully..."
           mvn spring-boot:stop
+
+  codeql:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      security-events: write  # Required for writing to Code Scanning API
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Set up CodeQL for Java
+      - name: Set up CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: 'java'
+
+      # Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          upload: true  # Upload CodeQL results to GitHub security events
