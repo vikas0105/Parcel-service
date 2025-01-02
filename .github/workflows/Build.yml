@@ -74,10 +74,10 @@ jobs:
           fi
 
       # Wait for 5 minutes
-      - name: Wait for 3 seconds
+      - name: Wait for 5 minutes
         run: |
           echo "App has been running for 5 minutes. Waiting..."
-          sleep 3  # Wait for 3 seconds (3 seconds)
+          sleep 3  # Wait for 5 minutes (300 seconds)
 
       # Stop the Spring Boot app gracefully using spring-boot:stop
       - name: Gracefully Stop Spring Boot App
@@ -85,10 +85,11 @@ jobs:
           echo "Stopping the app gracefully..."
           mvn spring-boot:stop
 
-      # SonarCloud Analysis
+      # Run SonarCloud analysis
       - name: Run SonarCloud Analysis
         run: mvn sonar:sonar \
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
           -Dsonar.organization=${{ secrets.SONAR_ORG_KEY }} \
           -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-          -Dsonar.java.binaries=target/classes
+          -Dsonar.java.binaries=target/classes \
+          -Dsonar.host.url=https://sonarcloud.io
