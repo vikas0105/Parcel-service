@@ -79,4 +79,3 @@ jobs:
       run: |
         echo "Stopping the app gracefully..."
         mvn spring-boot:stop
-
