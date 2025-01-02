@@ -44,7 +44,7 @@ jobs:
 
       # Set up CodeQL for Java (after the build)
       - name: Set up CodeQL
-        uses: github/codeql-action/setup
+        uses: github/codeql-action/setup@v2
 
       # Perform CodeQL Analysis (after build)
       - name: Perform CodeQL Analysis
