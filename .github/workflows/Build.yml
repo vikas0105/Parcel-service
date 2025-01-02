@@ -105,7 +105,7 @@ jobs:
 
       # Set up SonarCloud
       - name: Set up SonarCloud
-        uses: SonarSource/sonarcloud-action@v2
+        uses: SonarSource/sonarcloud-action@v2.1.1  # This is the updated action version
         with:
           organization: ${{ secrets.SONAR_ORG }}  # Secret: Your SonarCloud organization key
           projectKey: ${{ secrets.SONAR_PROJECT_KEY }}  # Secret: Your SonarCloud project key
