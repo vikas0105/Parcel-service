@@ -1,4 +1,4 @@
-name: Build, Deploy, SonarQube Analysis, and Upload Artifacts
+name: Build, Deploy, and Analyze with SonarCloud
 
 on:
   push:
@@ -38,15 +38,15 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      # Run SonarQube analysis
-      - name: SonarQube Scan
+      # SonarCloud Analysis
+      - name: SonarCloud Analysis
         uses: sonarsource/sonarcloud-github-action@v2
         with:
           projectBaseDir: .
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Your SonarCloud token
-          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}  # Your SonarCloud project key
-          SONAR_ORG_KEY: ${{ secrets.SONAR_ORG_KEY }}  # Your SonarCloud organization key
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # SonarCloud token from GitHub Secrets
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}  # SonarCloud project key from GitHub Secrets
+          SONAR_ORG_KEY: ${{ secrets.SONAR_ORG_KEY }}  # SonarCloud organization key from GitHub Secrets
 
       # Upload the JAR as an artifact using v4
       - name: Upload JAR as artifact
@@ -57,7 +57,7 @@ jobs:
 
       # Run the Spring Boot application
       - name: Run Spring Boot App
-        run: mvn spring-boot:run & 
+        run: mvn spring-boot:run &
         env:
           SPRING_PROFILES_ACTIVE: "test"
 
@@ -65,7 +65,7 @@ jobs:
       - name: Display IP Address and Port
         run: |
           echo "Fetching the runner's IP address..."
-          IP_ADDRESS=$(curl -s ifconfig.me) # This fetches the public IP of the runner
+          IP_ADDRESS=$(curl -s ifconfig.me)  # This fetches the public IP of the runner
           PORT=8080
           echo "The app is accessible at: http://$IP_ADDRESS:$PORT"
 
@@ -73,7 +73,7 @@ jobs:
       - name: Validate App is Running
         run: |
           echo "Waiting for the app to start..."
-          sleep 15 # Allow some time for the Spring Boot app to fully start
+          sleep 15  # Allow some time for the Spring Boot app to fully start
           echo "Checking if the app is running..."
           RESPONSE=$(curl --write-out "%{http_code}" --silent --output /dev/null http://localhost:8080)
           if [ "$RESPONSE" -eq 200 ]; then
@@ -83,7 +83,7 @@ jobs:
             exit 1
           fi
 
-      # Wait for 3 seconds (adjusted from 5 minutes)
+      # Wait for 3 seconds (adjustable wait time)
       - name: Wait for 3 seconds
         run: |
           echo "App has been running for 3 seconds. Waiting..."
