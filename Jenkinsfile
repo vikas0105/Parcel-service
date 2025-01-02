@@ -1,63 +1,83 @@
 pipeline {
     agent any
 
+    environment {
+        JAVA_HOME = '/usr/lib/jvm/java-11-openjdk-amd64'
+        MAVEN_HOME = '/usr/share/maven'
+        PATH = "${JAVA_HOME}/bin:${MAVEN_HOME}/bin:${env.PATH}"
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
+                echo 'Checking out code...'
                 checkout scm
             }
         }
 
-        stage('Build with Maven (Docker)') {
+        stage('Set up Java 11') {
             steps {
-                script {
-                    // Run Maven inside a Docker container
-                    sh '''
-                    docker run --rm -v $(pwd):/mnt -w /mnt maven:3.8.1-jdk-17 mvn clean install -DskipTests
-                    '''
-                }
+                echo 'Setting up Java 11...'
+                sh 'sudo apt update'
+                sh 'sudo apt install -y openjdk-11-jdk'
             }
         }
 
-        stage('Run Spring Boot App') {
+        stage('Set up Maven') {
             steps {
-                sh 'mvn spring-boot:run &'
+                echo 'Setting up Maven...'
+                sh 'sudo apt install -y maven'
             }
         }
 
-        stage('Wait for App to Start') {
+        stage('Build with Maven') {
             steps {
-                script {
-                    echo 'Waiting for the app to start...'
-                    sleep 15
-                }
+                echo 'Building project with Maven...'
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Upload Artifact') {
+            steps {
+                echo 'Uploading artifact...'
+                archiveArtifacts artifacts: 'target/simple-parcel-service-app-1.0-SNAPSHOT.jar', allowEmptyArchive: true
+            }
+        }
+
+        stage('Run Application') {
+            steps {
+                echo 'Running Spring Boot application...'
+                sh 'nohup mvn spring-boot:run &'
+                sleep(time: 15, unit: 'SECONDS') // Wait for the application to fully start
             }
         }
 
         stage('Validate App is Running') {
             steps {
+                echo 'Validating that the app is running...'
                 script {
                     def response = sh(script: 'curl --write-out "%{http_code}" --silent --output /dev/null http://localhost:8080', returnStdout: true).trim()
-                    if (response != '200') {
-                        error "App is not running. HTTP response code: ${response}"
+                    if (response == "200") {
+                        echo 'The app is running successfully!'
                     } else {
-                        echo "The app is running successfully!"
+                        echo "The app failed to start. HTTP response code: ${response}"
+                        currentBuild.result = 'FAILURE'
+                        error("The app did not start correctly!")
                     }
                 }
             }
         }
 
-        stage('Wait for 5 Minutes') {
+        stage('Wait for 5 minutes') {
             steps {
-                script {
-                    echo 'Waiting for 5 minutes before stopping the app...'
-                    sleep 300
-                }
+                echo 'Waiting for 5 minutes...'
+                sleep(time: 5, unit: 'MINUTES')  // Wait for 5 minutes
             }
         }
 
         stage('Gracefully Stop Spring Boot App') {
             steps {
+                echo 'Gracefully stopping the Spring Boot application...'
                 sh 'mvn spring-boot:stop'
             }
         }
@@ -65,15 +85,8 @@ pipeline {
 
     post {
         always {
-            echo 'Cleaning up after the build.'
-        }
-
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-
-        failure {
-            echo 'Pipeline failed!'
+            echo 'Cleaning up...'
+            // Any cleanup steps, like stopping the app or cleaning up the environment
         }
     }
 }
