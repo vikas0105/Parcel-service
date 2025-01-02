@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'  // Adjust if needed
-    }
-
     stages {
         stage('Checkout Code') {
             steps {
@@ -12,34 +8,19 @@ pipeline {
             }
         }
 
-        stage('Set Up Java') {
+        stage('Build with Maven (Docker)') {
             steps {
                 script {
-                    // Verify Java 17 is available
-                    sh 'java -version'
+                    // Run Maven inside a Docker container
+                    sh '''
+                    docker run --rm -v $(pwd):/mnt -w /mnt maven:3.8.1-jdk-17 mvn clean install -DskipTests
+                    '''
                 }
-            }
-        }
-
-        stage('Cache Maven Dependencies') {
-            steps {
-                script {
-                    // Cache Maven dependencies if required
-                    sh 'mkdir -p ~/.m2/repository'
-                }
-            }
-        }
-
-        stage('Build with Maven') {
-            steps {
-                // Use Maven to build the project
-                sh 'mvn clean install -DskipTests'
             }
         }
 
         stage('Run Spring Boot App') {
             steps {
-                // Run the Spring Boot app in the background
                 sh 'mvn spring-boot:run &'
             }
         }
