@@ -3,10 +3,10 @@ name: Build, Deploy, and Upload Artifacts with SonarCloud
 on:
   push:
     branches:
-      - '**'
+      - main
   pull_request:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -53,7 +53,7 @@ jobs:
 
       # Run the Spring Boot application
       - name: Run Spring Boot App
-        run: mvn spring-boot:run &
+        run: mvn spring-boot:run & 
         env:
           SPRING_PROFILES_ACTIVE: "test"
 
@@ -99,14 +99,14 @@ jobs:
       security-events: write  # Required for writing to Code Scanning API
 
     steps:
-      # Checkout the repository
-      - name: Checkout Code
+      # Checkout the code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up SonarCloud (Maven plugin)
-      - name: Set up SonarCloud
-        run: mvn sonar:sonar \
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
-            -Dsonar.organization=${{ secrets.SONAR_ORG }} \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.host.url=https://sonarcloud.io  # Ensure this points to SonarCloud
+      # Set up SonarCloud and run analysis in one step
+      - name: Set up SonarCloud and Run Analysis
+        run: |
+          curl -sSLo sonarcloud-action.sh https://github.com/SonarSource/sonarcloud-action/releases/download/v2/sonarcloud-action-linux-x86_64.tar.gz
+          tar -xzf sonarcloud-action.sh
+          chmod +x sonarcloud-action.sh
+          ./sonarcloud-action.sh --organization="${{ secrets.SONAR_ORG }}" --projectKey="${{ secrets.SONAR_PROJECT_KEY }}" --sonarToken="${{ secrets.SONAR_TOKEN }}" --sonarHostUrl="https://sonarcloud.io"
