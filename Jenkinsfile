@@ -50,10 +50,10 @@ pipeline {
                 sh 'nohup mvn spring-boot:run &'
                 sleep(time: 15, unit: 'SECONDS') // Wait for the application to fully start
 
-                // Display the IP address and access URL of the application
+                // Fetch the public IP and display the access URL
                 script {
-                    def ipAddress = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true).trim()
-                    echo "The application is running and accessible at: http://${ipAddress}:8080"
+                    def publicIp = sh(script: "curl -s http://169.254.169.254/latest/meta-data/public-ipv4", returnStdout: true).trim()
+                    echo "The application is running and accessible at: http://${publicIp}:8080"
                 }
             }
         }
