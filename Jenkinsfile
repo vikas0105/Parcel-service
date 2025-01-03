@@ -52,7 +52,7 @@ pipeline {
 
                 // Fetch the public IP and display the access URL
                 script {
-                    def publicIp = sh(script: "curl -s http://169.254.169.254/latest/meta-data/public-ipv4", returnStdout: true).trim()
+                    def publicIp = sh(script: "curl -s https://checkip.amazonaws.com", returnStdout: true).trim()
                     echo "The application is running and accessible at: http://${publicIp}:8080"
                 }
             }
@@ -93,6 +93,7 @@ pipeline {
         always {
             echo 'Cleaning up...'
             // Any cleanup steps, like stopping the app or cleaning up the environment
+            sh 'pkill -f "mvn spring-boot:run" || true' // Ensure the app is stopped
         }
     }
 }
