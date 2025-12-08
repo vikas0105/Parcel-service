@@ -32,7 +32,9 @@ stage('Push the artifacts into JFrog Artifactory') {
             steps {
                 script {
                     // Define WAR file path
-                  def WAR_FILE = "${env.WORKSPACE}/target/simple-parcel-service-app-1.0-SNAPSHOT.jar"
+                 // def WAR_FILE = "${env.WORKSPACE}/target/simple-parcel-service-app-1.0-SNAPSHOT.jar"
+${env.WORKSPACE}/Parcel-service/target/simple-parcel-service-app-1.0-SNAPSHOT.jar
+
 //def WAR_FILE = "/home/slave1/workspace/parcel_booking_library_feature-1/target/simple-parcel-service-app-1.0-SNAPSHOT.jar"
 // /home/slave1/workspace/parcel_booking_library_feature-1/target
                     // Current timestamp
@@ -60,7 +62,8 @@ stage('Push the artifacts into JFrog Artifactory') {
             steps {
                 sh 'mvn spring-boot:run'
 
-                dir('/var/lib/jenkins/workspace/Parcel_service_feature-1/target') {
+               // dir('/var/lib/jenkins/workspace/Parcel_service_feature-1/target') 
+dir("${env.WORKSPACE}/Parcel-service/target"){
                     sh """
                          nohup java -jar simple-parcel-service-app-1.0-SNAPSHOT.jar > app.log 2>&1 &
                         echo "Application started"
