@@ -15,7 +15,7 @@ pipeline {
             steps {
                 script {
                     sh("""
-                       rm -rf hello-world-war
+                       rm -rf Parcel-service
                       git clone https://github.com/vinayak432/Parcel-service.git
                        ls -ltr
                     """)
