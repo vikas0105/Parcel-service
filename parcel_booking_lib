@@ -1,0 +1,34 @@
+@Library('pipeline_library') _
+
+pipeline {
+    agent { label 'java' }
+
+    stages {
+        stage('Library-Demo') {
+             steps {
+              echo 'Executing a shared lib function'
+                 sayHello 'Devops- parcel booking'
+             }
+         }
+
+        stage('Checkout') {
+            steps {
+                script {
+                    sh("""
+                       rm -rf Parcel-service
+                      git clone https://github.com/vinayak432/Parcel-service.git
+                       ls -ltr
+                    """)
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    build 'install'
+                }
+            }
+        }
+    }
+}
