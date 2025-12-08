@@ -32,8 +32,9 @@ stage('Push the artifacts into JFrog Artifactory') {
             steps {
                 script {
                     // Define WAR file path
-                    def WAR_FILE = "${env.WORKSPACE}/target/simple-parcel-service-app-1.0-SNAPSHOT.jar"
-
+                 //   def WAR_FILE = "${env.WORKSPACE}/target/simple-parcel-service-app-1.0-SNAPSHOT.jar"
+def WAR_FILE = "/home/slave1/workspace/parcel_booking_library_feature-1/target/simple-parcel-service-app-1.0-SNAPSHOT.jar"
+// /home/slave1/workspace/parcel_booking_library_feature-1/target
                     // Current timestamp
                     def currentDate = new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm").format(new Date())
 
