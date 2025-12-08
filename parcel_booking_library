@@ -1,0 +1,72 @@
+@Library('pipeline_library') _
+
+pipeline {
+    agent { label 'java' }
+
+    stages {
+        stage('Library-Demo') {
+             steps {
+              echo 'Executing a shared lib function'
+                 sayHello 'Devops- parcel booking'
+             }
+         }
+          stage('Checkout') {
+            steps {
+                script {
+                    sh("""
+                       rm -rf hello-world-war
+                      git clone https://github.com/vinayak432/Parcel-service.git
+                       ls -ltr
+                    """)
+                }
+            }
+        }
+          stage('Build') {
+            steps {
+                script {
+                    build 'install'
+                }
+            }
+        }
+stage('Push the artifacts into JFrog Artifactory') {
+            steps {
+                script {
+                    // Define WAR file path
+                    def WAR_FILE = "${env.WORKSPACE}/target/simple-parcel-service-app-1.0-SNAPSHOT.jar"
+
+                    // Current timestamp
+                    def currentDate = new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm").format(new Date())
+
+                    // Path inside Artifactory
+                    def targetPath = "feature_release1/${currentDate}/"
+
+                    rtUpload(
+                        serverId: "jfrog",
+                        spec: """{
+                            "files": [
+                                {
+                                    "pattern": "${WAR_FILE}",
+                                    "target": "${targetPath}"
+                                }
+                            ]
+                        }"""
+                    )
+                }
+            }
+        }
+
+ stage('Run Application') {
+            steps {
+                sh 'mvn spring-boot:run'
+
+                dir('/var/lib/jenkins/workspace/Parcel_service_feature-1/target') {
+                    sh """
+                        // nohup java -jar simple-parcel-service-app-1.0-SNAPSHOT.jar > app.log 2>&1 &
+                        // echo "Application started"
+                    """
+                }
+            }
+        }
+
+    }
+}
