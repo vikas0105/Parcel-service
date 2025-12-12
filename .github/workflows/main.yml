@@ -1,0 +1,35 @@
+name: Build, Deploy, and Analyze
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:  # Allow for manual trigger via GitHub UI
+
+jobs:
+  # Call the Java and Maven setup workflow
+  java-maven-setup:
+    uses: ./.github/workflows/setup-java-maven.yml  # Reference to the consolidated Java and Maven setup workflow
+
+  # Call the build and artifact workflow
+  build-and-artifact:
+    uses: ./.github/workflows/build-and-artifact.yml  # Reference to the build workflow
+    needs: java-maven-setup  # Ensure Java and Maven setup is completed first
+
+  # Call the Spring Boot run and stop workflow
+  springboot-run-stop:
+    uses: ./.github/workflows/springboot-run-stop.yml  # Reference to the Spring Boot workflow
+    needs: build-and-artifact  # Ensure the build is completed before running Spring Boot
+
+  # Call the SonarCloud analysis workflow
+  sonarcloud-analysis:
+    uses: ./.github/workflows/sonarcloud-analysis.yml  # Reference to the SonarCloud analysis workflow
+    needs: build-and-artifact  # Ensure the build job is completed before analysis
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_ORG: ${{ secrets.SONAR_ORG }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+

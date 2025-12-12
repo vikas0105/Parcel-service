@@ -1,0 +1,46 @@
+name: Spring Boot Run and Stop
+
+on:
+  workflow_call:  # This workflow can be called from other workflows
+
+jobs:
+  springboot-run-stop:
+    runs-on: self-hosted
+
+    steps:
+      # Run Spring Boot App
+      - name: Run Spring Boot App
+        run: mvn spring-boot:run &
+
+      # Wait for the Spring Boot app to fully start
+      - name: Wait for Spring Boot App to Start
+        run: |
+          echo "Waiting for the app to start..."
+          sleep 15
+          echo "App should now be running."
+
+      # Validate that the application is running
+      - name: Validate App is Running
+        run: |
+          echo "Checking if the app is running..."
+          IP_ADDRESS=$(curl -s ifconfig.me)  # Fetch public IP address
+          PORT=8080
+          RESPONSE=$(curl --write-out "%{http_code}" --silent --output /dev/null http://$IP_ADDRESS:$PORT)
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "The app is running successfully at http://$IP_ADDRESS:$PORT"
+          else
+            echo "The app failed to start. HTTP response code: $RESPONSE"
+            exit 1
+          fi
+
+      # Wait for 3 minutes (180 seconds)
+      - name: Wait for 3 minutes
+        run: |
+          echo "App has been running for 3 minutes. Waiting..."
+          sleep 180
+
+      # Gracefully Stop Spring Boot App
+      - name: Gracefully Stop Spring Boot App
+        run: |
+          echo "Stopping the app gracefully..."
+          mvn spring-boot:stop
